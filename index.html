@@ -2,29 +2,32 @@
 <html>
 <body>
 <h1>Hello Kero</h1>
-<h1>
-#include <locale>
-#include <iostream>
-#include <algorithm>
+
+<div class='answers_count'></div>
+<div class='answers'>您可以使用<a href="http://en.cppreference.com/w/cpp/algorithm/search" rel="nofollow noreferrer"><code>std::search</code></a>与自定义谓词。</p>
+<p></p>
+<pre><code>#include &lt;locale&gt;
+#include &lt;iostream&gt;
+#include &lt;algorithm&gt;
 using namespace std;
 
 // templated version of my_equal so it could work with both char and wchar_t
-template<typename charT>
+template&lt;typename charT&gt;
 struct my_equal {
-    my_equal( const std::locale& loc ) : loc_(loc) {}
+    my_equal( const std::locale&amp; loc ) : loc_(loc) {}
     bool operator()(charT ch1, charT ch2) {
         return std::toupper(ch1, loc_) == std::toupper(ch2, loc_);
     }
 private:
-    const std::locale& loc_;
+    const std::locale&amp; loc_;
 };
 
 // find substring (case insensitive)
-template<typename T>
-int ci_find_substr( const T& str1, const T& str2, const std::locale& loc = std::locale() )
+template&lt;typename T&gt;
+int ci_find_substr( const T&amp; str1, const T&amp; str2, const std::locale&amp; loc = std::locale() )
 {
     typename T::const_iterator it = std::search( str1.begin(), str1.end(), 
-        str2.begin(), str2.end(), my_equal<typename T::value_type>(loc) );
+        str2.begin(), str2.end(), my_equal&lt;typename T::value_type&gt;(loc) );
     if ( it != str1.end() ) return it - str1.begin();
     else return -1; // not found
 }
@@ -43,7 +46,8 @@ int main(int arc, char *argv[])
 
     return 0;
 }
-</h1>
+</code></pre>
+
 <p>I'm hosted with GitHub Pages.</p>
 </body>
 </html>
