@@ -1,53 +1,131 @@
 <!DOCTYPE html>
-<html>
-<body>
-<h1>Hello Kero</h1>
-
-<div class='answers_count'></div>
-<div class='answers'>您可以使用<a href="http://en.cppreference.com/w/cpp/algorithm/search" rel="nofollow noreferrer"><code>std::search</code></a>与自定义谓词。</p>
-<p></p>
-<pre><code>#include &lt;locale&gt;
-#include &lt;iostream&gt;
-#include &lt;algorithm&gt;
-using namespace std;
-
-// templated version of my_equal so it could work with both char and wchar_t
-template&lt;typename charT&gt;
-struct my_equal {
-    my_equal( const std::locale&amp; loc ) : loc_(loc) {}
-    bool operator()(charT ch1, charT ch2) {
-        return std::toupper(ch1, loc_) == std::toupper(ch2, loc_);
+<html lang="en">
+<head>
+  <title>Bootstrap Example</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <style>
+    /* Set height of the grid so .sidenav can be 100% (adjust if needed) */
+    .row.content {height: 1500px}
+    
+    /* Set gray background color and 100% height */
+    .sidenav {
+      background-color: #f1f1f1;
+      height: 100%;
     }
-private:
-    const std::locale&amp; loc_;
-};
+    
+    /* Set black background color, white text and some padding */
+    footer {
+      background-color: #555;
+      color: white;
+      padding: 15px;
+    }
+    
+    /* On small screens, set height to 'auto' for sidenav and grid */
+    @media screen and (max-width: 767px) {
+      .sidenav {
+        height: auto;
+        padding: 15px;
+      }
+      .row.content {height: auto;} 
+    }
+  </style>
+</head>
+<body>
 
-// find substring (case insensitive)
-template&lt;typename T&gt;
-int ci_find_substr( const T&amp; str1, const T&amp; str2, const std::locale&amp; loc = std::locale() )
-{
-    typename T::const_iterator it = std::search( str1.begin(), str1.end(), 
-        str2.begin(), str2.end(), my_equal&lt;typename T::value_type&gt;(loc) );
-    if ( it != str1.end() ) return it - str1.begin();
-    else return -1; // not found
-}
+<div class="container-fluid">
+  <div class="row content">
+    <div class="col-sm-3 sidenav">
+      <h4>Klog</h4>
+      <ul class="nav nav-pills nav-stacked">
+        <li class="active"><a href="#section1">Code</a></li>
+        <li><a href="#section2">Note</a></li>
+        <li><a href="#section3">Meme</a></li>
+        <li><a href="#section3">Misc</a></li>
+      </ul><br>
+      <!--
+      <div class="input-group">
+        <input type="text" class="form-control" placeholder="Search Blog..">
+        <span class="input-group-btn">
+          <button class="btn btn-default" type="button">
+            <span class="glyphicon glyphicon-search"></span>
+          </button>
+        </span>
+      </div>
+      -->
+    </div>
 
-int main(int arc, char *argv[]) 
-{
-    // string test
-    std::string str1 = "FIRST HELLO";
-    std::string str2 = "hello";
-    int f1 = ci_find_substr( str1, str2 );
+    <div class="col-sm-9">
+      <!--<h4><small>RECENT POSTS</small></h4>-->
+      <hr>
+      <h2><a href="./str_find.html">Object Pool</a></h2>
+      <h5><span class="glyphicon glyphicon-time"></span> Post by Kero, Feb 9, 2018.</h5>
+      <h5><span class="label label-danger">C++</span> <span class="label label-primary">boost</span> <span class="label label-success">thread</span></h5><br>
+      <p>object_pool.</p>
+      <br><br>
+      
+      <!--<h4><small>RECENT POSTS</small></h4>-->
+      <hr>
+      <h2><a href="./str_find.html">C++的String子串查找扩展</a></h2>
+      <h5><span class="glyphicon glyphicon-time"></span> Post by Kero, Feb 9, 2018.</h5>
+      <h5><span class="label label-danger">C++</span></h5><br>
+      <p>支持std::wstring/wchar_t以及大小写不敏感的std::string查找是否包含子串解决方案。</p>
+      <hr>
 
-    // wstring test
-    std::wstring wstr1 = L"ОПЯТЬ ПРИВЕТ";
-    std::wstring wstr2 = L"привет";
-    int f2 = ci_find_substr( wstr1, wstr2 );
+      <!--
+      <h4>Leave a Comment:</h4>
+      <form role="form">
+        <div class="form-group">
+          <textarea class="form-control" rows="3" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-success">Submit</button>
+      </form>
+      <br><br>
+      
 
-    return 0;
-}
-</code></pre>
+      <p><span class="badge">2</span> Comments:</p><br>
+      
+      <div class="row">
+        <div class="col-sm-2 text-center">
+          <img src="bandmember.jpg" class="img-circle" height="65" width="65" alt="Avatar">
+        </div>
+        <div class="col-sm-10">
+          <h4>Anja <small>Sep 29, 2015, 9:12 PM</small></h4>
+          <p>Keep up the GREAT work! I am cheering for you!! Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+          <br>
+        </div>
+        <div class="col-sm-2 text-center">
+          <img src="bird.jpg" class="img-circle" height="65" width="65" alt="Avatar">
+        </div>
+        <div class="col-sm-10">
+          <h4>John Row <small>Sep 25, 2015, 8:25 PM</small></h4>
+          <p>I am so happy for you man! Finally. I am looking forward to read about your trendy life. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+          <br>
+          <p><span class="badge">1</span> Comment:</p><br>
+          <div class="row">
+            <div class="col-sm-2 text-center">
+              <img src="bird.jpg" class="img-circle" height="65" width="65" alt="Avatar">
+            </div>
+            <div class="col-xs-10">
+              <h4>Nested Bro <small>Sep 25, 2015, 8:28 PM</small></h4>
+              <p>Me too! WOW!</p>
+              <br>
+            </div>
+          </div>
+        </div>
+      </div>
+      -->
 
-<p>I'm hosted with GitHub Pages.</p>
+    </div>
+  </div>
+</div>
+
+<footer class="container-fluid">
+  <p>Footer Text</p>
+</footer>
+
 </body>
 </html>
