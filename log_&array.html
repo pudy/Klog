@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <!--
+    <link rel="icon" href="../../../../favicon.ico">
+    -->
+
+    <title>数组名和数组名取地址的区别</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="https://cdn.bootcss.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="./sticky-footer.css" rel="stylesheet">
+  </head>
+
+  <body>
+
+    <!-- Begin page content -->
+    <main role="main" class="container">
+      <h1 class="mt-5">数组名和数组名取地址的区别</h1>
+      <a href="https://blog.csdn.net/daniel_ice/article/details/6857019">本文参考</a>
+      <!--<p class="lead">本文参考https://blog.csdn.net/daniel_ice/article/details/6857019</p>-->
+      <p></p>
+      <p>
+        <pre>
+以下代码会打印出什么样的日志呢？
+
+#include <stdio.h>  
+  
+int a[2] = {1,2};  
+int main(){  
+        printf("a = %p\n", a); // I  
+        printf("&a = %p\n", &a); // II  
+        printf("a + 1 = %p\n", a + 1);// III  
+        printf("&a + 1 = %p\n", &a + 1);// IV  
+  
+        return 0;  
+}  
+本机（linux）结果输出：
+a = 0x804a014
+&a = 0x804a014
+a + 1 = 0x804a018
+&a + 1 = 0x804a01c
+
+没错，上面I 和 II打印出来的地址是一样的，IV 要比 III 大4个字节的地址空间。下面是我对这一现象的解释，如有不妥的地方请各位大虾一定给于指出:
+
+首先引用《C和指针》p141中的理论：
+在C中， 在几乎所有使用数组的表达式中，数组名的值是个指针常量，也就是数组第一个元素的地址。 它的类型取决于数组元素的类型： 如果它们是int类型，那么数组名的类型就是“指向int的常量指针“。
+看到这里我想应该就知道为什么 会有I 和 III式的结果了。
+
+对于II 和 IV 则是特殊情况，在《C和指针》p142中说到，在以下两中场合下，数组名并不是用指针常量来表示，就是当数组名作为sizeof操作符和单目操作符&的操作数时。 sizeof返回整个数组的长度，而不是指向数组的指针的长度。 取一个数组名的地址所产生的是一个指向数组的指针，而不是一个指向某个指针常量的指针。
+所以&a后返回的指针便是指向数组的指针，跟a（一个指向a[0]的指针）在指针的类型上是有区别的。
+
+然后我们用符号表和汇编代码来看看编译器到底是怎样区分&a 和 a, 并将其转换为汇编代码的：
+
+通过 nm a.out 得到符号表如下：
+。。。。。。。// 省略了一些与本主题无关的变量  
+0804a01c A _edata  
+0804a024 A _end  
+080484ec T _fini  
+08048508 R _fp_hw  
+080482bc T _init  
+08048330 T _start  
+0804a014 D a // a 变量保存在虚拟地址0x0804a014 中  
+0804a01c b completed.7021  
+0804a00c W data_start  
+0804a020 b dtor_idx.7023  
+080483c0 t frame_dummy  
+080483e4 T main // main函数的地址  
+         U printf@@GLIBC_2.0  
+调用gcc -S xx.c得到汇编代码： 
+
+    .file   "name_of_array.c"  
+.globl a  
+    .data  
+    .align 4  
+    .type   a, @object  
+    .size   a, 8 // 从这里我们便知道sizeof(a) 等于8  
+a:  
+    .long   1 // 从这里可以看出，编译器直接把 .c文件中的int 转化为long型  
+    .long   2  
+    .section    .rodata  
+.LC0:  
+    .string "a = %p\n"  
+.LC1:  
+    .string "&a = %p\n"  
+.LC2:  
+    .string "a + 1 = %p\n"  
+.LC3:  
+    .string "&a + 1 = %p\n"  
+    .text  
+.globl main  
+    .type   main, @function  
+main:  
+    pushl   %ebp  
+    movl    %esp, %ebp  
+    andl    $-16, %esp  
+    subl    $16, %esp  
+    movl    $.LC0, %eax // I 所对应的汇编代码  
+    movl    $a, 4(%esp)  
+    movl    %eax, (%esp)  
+    call    printf  
+    movl    $.LC1, %eax // II 所对应的汇编代码  
+    movl    $a, 4(%esp)  
+    movl    %eax, (%esp)  
+    call    printf  
+    movl    $.LC2, %eax // III 所对应的汇编代码  
+    movl    $a+4, 4(%esp)  
+    movl    %eax, (%esp)  
+    call    printf  
+    movl    $a+8, %edx // IV 所对应的汇编代码  
+    movl    $.LC3, %eax  
+    movl    %edx, 4(%esp)  
+    movl    %eax, (%esp)  
+    call    printf  
+    movl    $0, %eax  
+    leave  
+    ret  
+    .size   main, .-main  
+    .ident  "GCC: (Ubuntu 4.4.3-4ubuntu5) 4.4.3"  
+    .section    .note.GNU-stack,"",@progbits  
+I所对应的汇编代码 movl $a, 4(%esp)
+$表示取地址，通过符号表我们知道a对应地址为0x0804a014， 所以这段代码将会打印0x0804a014。但是我们明明在代码里写的是printf("a = %p\n", a), （如果a不为数组名而是一般意义的int变量，相应的汇编码应为movl a, 4(%esp) 怎么编译后的汇编代码会是对a取地址呢？ 本人猜测为编译器自动给a 加了一个取值符，从而翻译为$a。
+结论： 对于用户没有明确给出&的编码，编译器翻译自动给变量a加上取值符$， 其中取a的地址得到的指针类型由数组元素决定。
+II 略过
+
+III movl $a+4, 4(%esp)
+对a加上取值符得到$a，因为数组元素类型为int，所以指针每次需要移动四个字节的地址空间。 所以c代码 a + 1 翻译为汇编 $a + 4 
+
+IV  movl $a+8, %edx 
+所对应用户代码为printf("a = %p\n", &a + 1)， 根据《C和指针》中的理论，当a前面有&操作符时，编译器将会把a对应符号表中的地址看作指向数组的指针，sizeof（a） 为8，
+从而&a + 1 将会翻译为$a + 8
+
+
+结论： 对于用户明确给出&的编码，编译器将会把取a的地址得到的指针类型看作指向数组的指针。
+
+总结：编译器通过用户是否给出&，来决定指针变量的类型，进而翻译为相应的汇编码。 或者换句话说，&符只是用来表明变量a取地址后得到的值，被看作什么类型的指针，而不是用来表示对a进行取地址操作。
+        </pre>
+      </p>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <span class="text-muted"> Kero~ </span>
+        <h2><a href="./index.html">Home</a></h2>
+      </div>
+    </footer>
+  </body>
+</html>

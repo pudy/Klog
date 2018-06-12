@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <!--
+    <link rel="icon" href="../../../../favicon.ico">
+    -->
+
+    <title>Boost智能指针scoped_ptr</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="https://cdn.bootcss.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="./sticky-footer.css" rel="stylesheet">
+  </head>
+
+  <body>
+
+    <!-- Begin page content -->
+    <main role="main" class="container">
+      <h1 class="mt-5">Boost智能指针scoped_ptr</h1>
+      <a href="https://blog.csdn.net/maweiqi/article/details/7889397">本文参考</a>
+      <p></p>
+      <p>
+        <pre>
+Boost智能指针scoped_ptr
+boost::scoped_ptr和std::auto_ptr非常类似，是一个简单的智能指针，它能够保证在离开作用域后对象被自动释放。下列代码演示了该指针的基本应用：
+
+#include <string>
+#include <iostream>
+#include <boost/scoped_ptr.hpp>
+
+class implementation
+{
+public:
+    ~implementation() { std::cout <<"destroying implementation\n"; }
+    void do_something() { std::cout << "did something\n"; }
+};
+
+void test()
+{
+    boost::scoped_ptr<implementation> impl(new implementation());
+    impl->do_something();
+}
+
+void main()
+{
+    std::cout<<"Test Begin ... \n";
+    test();
+    std::cout<<"Test End.\n";
+}
+
+ 
+
+该代码的输出结果是：
+
+Test Begin ...
+did something
+destroying implementation
+Test End.
+
+可以看到：当implementation类离其开impl作用域的时候，会被自动删除，这样就会避免由于忘记手动调用delete而造成内存泄漏了。
+
+boost::scoped_ptr特点：
+
+boost::scoped_ptr的实现和std::auto_ptr非常类似，都是利用了一个栈上的对象去管理一个堆上的对象，从而使得堆上的对象随着栈上的对象销毁时自动删除。不同的是，boost::scoped_ptr有着更严格的使用限制——不能拷贝。这就意味着：boost::scoped_ptr指针是不能转换其所有权的。
+
+不能转换所有权
+boost::scoped_ptr所管理的对象生命周期仅仅局限于一个区间（该指针所在的"{}"之间），无法传到区间之外，这就意味着boost::scoped_ptr对象是不能作为函数的返回值的（std::auto_ptr可以）。
+不能共享所有权
+这点和std::auto_ptr类似。这个特点一方面使得该指针简单易用。另一方面也造成了功能的薄弱——不能用于stl的容器中。
+不能用于管理数组对象
+由于boost::scoped_ptr是通过delete来删除所管理对象的，而数组对象必须通过deletep[]来删除，因此boost::scoped_ptr是不能管理数组对象的，如果要管理数组对象需要使用boost::scoped_array类。
+        </pre>
+      </p>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <span class="text-muted"> Kero~ </span>
+        <h2><a href="./index.html">Home</a></h2>
+      </div>
+    </footer>
+  </body>
+</html>

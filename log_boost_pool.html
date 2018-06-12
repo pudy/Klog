@@ -23,9 +23,10 @@
     <!-- Begin page content -->
     <main role="main" class="container">
       <h1 class="mt-5">boost::pool与内存池技术</h1>
-      <p class="lead">本文参考http://blog.csdn.net/xushiweizh/archive/2006/11/21/1400426.aspx</p>
+      <a href="http://blog.csdn.net/xushiweizh/archive/2006/11/21/1400426.aspx">本文参考</a>
       <p></p>
       <p>
+        <pre>
     Pool分配是一种分配内存方法，用于快速分配同样大小的内存块，
     尤其是反复分配/释放同样大小的内存块的情况。
 
@@ -144,7 +145,8 @@ for(i = 0; i < NPASS; i++) {
     而且在pool的使用过程中如果不是恰好把链表中所有的小块都用上
     的话，在链表中最后的一些小块会始终用不上。把这些小块加入链
     表是多余的。虽然这个开销可能很小:)
-    </p>
+        </pre>
+      </p>
     </main>
 
     <footer class="footer">

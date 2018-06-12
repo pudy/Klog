@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <!--
+    <link rel="icon" href="../../../../favicon.ico">
+    -->
+
+    <title>HOC成长随笔</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="https://cdn.bootcss.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="./sticky-footer.css" rel="stylesheet">
+  </head>
+
+  <body>
+
+    <!-- Begin page content -->
+    <main role="main" class="container">
+      <h1 class="mt-5">HOC笔记若干</h1>
+      <p class="lead">风中的记忆~</p>
+      <p></p>
+      <p>
+        <pre>
+HOC反外挂功能
+
+在redis做了一个玩家uid为库名的hash库
+请求的request为key值，处理的消息包返回内容为val
+当短时间内多次发来重复请求时，返回已经缓存好的结果，并计入黑名单
+同时这个算法可以优化弱网重复发来购买请求重复扣钱问题
+
+
+
+php中redis的链接优化
+
+不保持，即每次请求完redis数据后断开连接，省一些服务器内存
+保持，即链接redis时传入保持链接的参数，重复读写，效率会高很多
+
+
+
+google退单问题
+
+参考google官方开发者文档如下
+https://developers.google.com/android-publisher/api-ref/inappproducts
+提供了根据票据信息，订单号，查询是否取消了订单的功能
+注意只有48小时内的订单可以退，所以我们只需要查付款信息在48小时内的订单
+有个别种情况会导致api返回结果为空，疑似黑卡？也当退单处理
+
+
+
+数据库timestamp类型变量备份问题
+
+当时在数据库机房迁移时，出现了时间戳类型的数据差了8小时问题
+排查后发现，迁移过程中，数据库备份日志是string类型的
+目标服务器时区设置为utc，数据库时区设置为+8区
+当一个timestamp类型的变量从服务器导入数据到数据库时，会增加8小时。。。
+
+
+
+跨年的那一周
+
+当心跨年的那一周的逻辑，前半周是上一年，后半周是下一年，往往会当做上一年的周
+
+
+
+负载异常问题
+
+排查后发现是客户端逻辑bug，同一时间内发到服务器大量请求~
+        </pre>
+      </p>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <span class="text-muted"> Kero~ </span>
+        <h2><a href="./index.html">Home</a></h2>
+      </div>
+    </footer>
+  </body>
+</html>

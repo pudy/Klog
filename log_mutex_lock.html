@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <!--
+    <link rel="icon" href="../../../../favicon.ico">
+    -->
+
+    <title>Boost并发编程之shared_mutex</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="https://cdn.bootcss.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="./sticky-footer.css" rel="stylesheet">
+  </head>
+
+  <body>
+
+    <!-- Begin page content -->
+    <main role="main" class="container">
+      <h1 class="mt-5">Boost并发编程之shared_mutex</h1>
+      <a href="https://blog.csdn.net/qq_26849233/article/details/75806805">本文参考</a>
+      <p></p>
+      <p>
+        <pre>
+    shared_mutex即读写锁，不同与我们常用的独占式锁mutex，shared_mutex是共享与独占共存的锁，实现了读写锁的机制，即多个读线程一个写线程，通常用于对于一个共享区域的读操作比较频繁，而写操作比较少的情况。
+
+    读写锁比起mutex具有更高的适用性，具有更高的并行性，可以有多个线程同时占用读模式的读写锁，但是只能有一个线程占用写模式的读写锁，读写锁的基本规则可以总结为“写优先，读共享，交叉互斥“，具体表现为读写锁的三种状态：
+        （1）当读写锁是写加锁状态时，在这个锁被解锁之前，所有试图对这个锁加锁的线程都会被阻塞。（交叉互斥）
+        （2）当读写锁在读加锁状态时，所有试图以读模式对它进行加锁的线程都可以得到访问权，但是以写模式对它进行加锁的线程将会被阻塞。（读共享，交叉互斥）
+        （3）当读写锁在读模式的锁状态时，如果有另外的线程试图以写模式加锁，读写锁通常会阻塞随后的读模式锁的请求，这样可以避免读模式锁长期占用，而等待的写模式锁请求则长期阻塞。（写优先）
+
+注：其实在读者-写者问题中，有读者优先和写者优先两种模式，只是在boost中的shared_mutex默认的实现是写者优先，这其实也是有道理的，因为在我们总是希望读到的数据是最新的，这就得保证写者优先。
+
+    下面通过一个 boost::shared_mutex的应用实例来反应其锁机制，该例子中我们建立两个读者线程，两个写者线程，程序的实际运行结果很直接的反应了shared_mutex应用情况。
+
+#include <boost\ref.hpp>  
+#include <boost\thread\thread.hpp>  
+#include <string>  
+using namespace boost;  
+  
+int g_num = 10;      //全局变量，写者改变该全局变量，读者读该全局变量  
+shared_mutex s_mu;   //全局shared_mutex对象  
+  
+//写线程  
+void read_(std::string &str)  
+{  
+    const char* c = str.c_str();  
+    while (1)  
+    {  
+        {  
+            shared_lock<shared_mutex> m(s_mu);    //读锁定，shared_lock  
+            printf("线程%s进入临界区，global_num = %d\n", c, g_num);  
+            boost::this_thread::sleep(boost::posix_time::seconds(1));    //sleep 1秒，给足够的时间看其他线程是否能进入临界区  
+            printf("线程%s离开临界区...\n", c);  
+        }  
+        boost::this_thread::sleep(boost::posix_time::seconds(1));   //读线程离开后再slpp 1秒（改变这个值可以看到不一样的效果）  
+    }  
+}  
+  
+//读线程  
+void writer_(std::string &str)  
+{  
+    const char* c = str.c_str();  
+    while (1)  
+    {  
+        {  
+            unique_lock<shared_mutex> m(s_mu);    //写锁定，unique_lock  
+            ++g_num;  
+            printf("线程%s进入临界区，global_num = %d\n", c, g_num);  
+            boost::this_thread::sleep(boost::posix_time::seconds(1));    //sleep 1秒，让其他线程有时间进入临界区  
+            printf("线程%s离开临界区...\n", c);  
+        }  
+        boost::this_thread::sleep(boost::posix_time::seconds(2));   //写线程离开后再slpp 2秒，这里比读线程多一秒是因为如果这里也是1秒，那两个写线程一起请求锁时会让读线程饥饿  
+    }  
+}  
+int main()  
+{  
+    std::string r1 = "read_1";  
+    std::string r2 = "read_2";  
+    std::string w1 = "writer_1";  
+    std::string w2 = "writer_2";  
+  
+    boost::thread_group tg;  
+    tg.create_thread(bind(read_, boost::ref(r1)));   //两个读者  
+    tg.create_thread(bind(read_, boost::ref(r2)));  
+  
+    tg.create_thread(bind(writer_, boost::ref(w1)));  //两个写者  
+    tg.create_thread(bind(writer_, boost::ref(w2)));  
+    tg.join_all();  
+  
+    return 0;  
+}  
+程序运行结果如下：
+
+
+从运行结果中可以看出，如果是读者获得了shared_mutex，则其他读者可以同时进入临界区，但如果是写者获得了shared_mutex，则其他的写者或读者都不能进入临界区，即同时只有一个写者能进入临界区。
+        </pre>
+      </p>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <span class="text-muted"> Kero~ </span>
+        <h2><a href="./index.html">Home</a></h2>
+      </div>
+    </footer>
+  </body>
+</html>
