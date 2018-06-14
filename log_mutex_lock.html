@@ -10,6 +10,13 @@
     -->
 
     <title>Boost并发编程之shared_mutex</title>
+    
+    <style type="text/css">
+    pre {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    </style>
 
     <!-- Bootstrap core CSS -->
     <link href="https://cdn.bootcss.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
@@ -96,6 +103,7 @@ int main()
     return 0;  
 }  
 程序运行结果如下：
+<img src="https://img-blog.csdn.net/20170722221641615?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvcXFfMjY4NDkyMzM=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" width="960"/>
 
 
 从运行结果中可以看出，如果是读者获得了shared_mutex，则其他读者可以同时进入临界区，但如果是写者获得了shared_mutex，则其他的写者或读者都不能进入临界区，即同时只有一个写者能进入临界区。
