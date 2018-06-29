@@ -53,7 +53,10 @@ php中redis的链接优化
 google退单问题
 
 参考google官方开发者文档如下
-https://developers.google.com/android-publisher/api-ref/inappproducts
+https://developers.google.com/android-publisher/authorization
+https://developers.google.com/android-publisher/archive/v1_1/purchases/get
+https://developers.google.com/android-publisher/api-ref/purchases/products/get
+https://developers.google.com/identity/protocols/OAuth2WebServer
 提供了根据票据信息，订单号，查询是否取消了订单的功能
 注意只有48小时内的订单可以退，所以我们只需要查付款信息在48小时内的订单
 有个别种情况会导致api返回结果为空，疑似黑卡？也当退单处理
